@@ -4,10 +4,12 @@ import AVFoundation
 public struct CameraPermission: PermissionWorker {
     private let name: String
     let mediaType: AVMediaType
+    private let retry: Bool
     
-    public init(for mediaType: AVMediaType, name: String = "Camera") {
+    public init(for mediaType: AVMediaType, name: String = "Camera", retryWhenDeniedOnFirstTime retry: Bool = true) {
         self.name = name
         self.mediaType = mediaType
+        self.retry = retry
     }
     
     public var authorize: AuthorizedPermission {
@@ -15,13 +17,11 @@ public struct CameraPermission: PermissionWorker {
             let status = AVCaptureDevice.authorizationStatus(for: mediaType)
             switch status {
             case .notDetermined:
-                let granted = await AVCaptureDevice.requestAccess(for: mediaType)
-                if granted {
-                    return .fullPermission
-                } else {
-                    throw PermissionError.denied(permissionName: name)
-                }
+                return try await requestPermission()
             case .restricted:
+                if retry {
+                    return try await requestPermission()
+                }
                 throw PermissionError.restricted(permissionName: name)
             case .denied:
                 throw PermissionError.denied(permissionName: name)
@@ -30,6 +30,15 @@ public struct CameraPermission: PermissionWorker {
             @unknown default:
                 throw PermissionError.unknown
             }
+        }
+    }
+    
+    private func requestPermission() async throws -> AuthorizedPermission {
+        let granted = await AVCaptureDevice.requestAccess(for: mediaType)
+        if granted {
+            return .fullPermission
+        } else {
+            throw PermissionError.denied(permissionName: name)
         }
     }
 }

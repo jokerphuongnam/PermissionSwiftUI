@@ -2,7 +2,7 @@ import CoreNFC
 import Foundation
 
 @available(iOS 11.0, *)
-public final class NFCPermission: NSObject, PermissionWorker, @preconcurrency NFCNDEFReaderSessionDelegate {
+public final class NFCPermission: NSObject, PermissionWorker {
     let alertMessage: String
     private let name: String
     private var sessionContinuation: CheckedContinuation<AuthorizedPermission, Error>?
@@ -26,7 +26,9 @@ public final class NFCPermission: NSObject, PermissionWorker, @preconcurrency NF
             }
         }
     }
-    
+}
+
+extension NFCPermission: @preconcurrency NFCNDEFReaderSessionDelegate {
     public func readerSession(_ session: NFCNDEFReaderSession, didInvalidateWithError error: Error) {
         sessionContinuation?.resume(throwing: PermissionError.underlying(permissionName: name, error: error))
         sessionContinuation = nil

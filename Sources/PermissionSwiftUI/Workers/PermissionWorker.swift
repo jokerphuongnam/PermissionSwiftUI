@@ -13,11 +13,11 @@ import PushKit
 
 @available(iOS 10.0, *)
 extension PermissionWorker where Self == NotificationPermission {
-    @MainActor @preconcurrency public static func notification(options: UNAuthorizationOptions, name: String = "Notification") -> NotificationPermission {
+    @MainActor @preconcurrency public static func notification(options: UNAuthorizationOptions, name: String = "Notification", retryWhenDeniedOnFirstTime retry: Bool = true) -> NotificationPermission {
         if PermissionWorkerDI.notification == nil {
-            PermissionWorkerDI.notification = NotificationPermission(options: options, name: name)
+            PermissionWorkerDI.notification = NotificationPermission(options: options, name: name, retryWhenDeniedOnFirstTime: retry)
         } else if options != PermissionWorkerDI.notification.options {
-            PermissionWorkerDI.notification = NotificationPermission(options: options, name: name)
+            PermissionWorkerDI.notification = NotificationPermission(options: options, name: name, retryWhenDeniedOnFirstTime: retry)
         }
         return PermissionWorkerDI.notification
     }
@@ -66,11 +66,11 @@ extension PermissionWorker where Self == VoipPermission {
 
 @available(iOS 8.0, *)
 extension PermissionWorker where Self == CameraPermission {
-    @MainActor @preconcurrency public static func camera(for mediaType: AVMediaType, name: String = "Camera") -> CameraPermission {
+    @MainActor @preconcurrency public static func camera(for mediaType: AVMediaType, name: String = "Camera", retryWhenDeniedOnFirstTime retry: Bool = true) -> CameraPermission {
         if PermissionWorkerDI.camera == nil {
-            PermissionWorkerDI.camera = CameraPermission(for: mediaType, name: name)
+            PermissionWorkerDI.camera = CameraPermission(for: mediaType, name: name, retryWhenDeniedOnFirstTime: retry)
         } else if mediaType != PermissionWorkerDI.camera.mediaType {
-            PermissionWorkerDI.camera = CameraPermission(for: mediaType, name: name)
+            PermissionWorkerDI.camera = CameraPermission(for: mediaType, name: name, retryWhenDeniedOnFirstTime: retry)
         }
         return PermissionWorkerDI.camera
     }
@@ -78,9 +78,9 @@ extension PermissionWorker where Self == CameraPermission {
 
 @available(iOS, introduced: 8.0)
 extension PermissionWorker where Self == MicrophonePermission {
-    @MainActor @preconcurrency public static func microphone(name: String = "Microphone") -> MicrophonePermission {
+    @MainActor @preconcurrency public static func microphone(name: String = "Microphone", retryWhenDeniedOnFirstTime retry: Bool = true) -> MicrophonePermission {
         if PermissionWorkerDI.microphone == nil {
-            PermissionWorkerDI.microphone = MicrophonePermission(name: name)
+            PermissionWorkerDI.microphone = MicrophonePermission(name: name, retryWhenDeniedOnFirstTime: retry)
         }
         return PermissionWorkerDI.microphone
     }
@@ -111,11 +111,11 @@ extension PermissionWorker where Self == CarPlayPermission {
 
 @available(iOS 14, *)
 extension PermissionWorker where Self == PhotoLibraryPermission {
-    @MainActor @preconcurrency public static func photoLibrary(for accessLevel: PHAccessLevel, name: String = "Photo Library") -> PhotoLibraryPermission {
+    @MainActor @preconcurrency public static func photoLibrary(for accessLevel: PHAccessLevel, name: String = "Photo Library", retryWhenDeniedOnFirstTime retry: Bool = true) -> PhotoLibraryPermission {
         if PermissionWorkerDI.photoLibrary == nil {
-            PermissionWorkerDI.photoLibrary = PhotoLibraryPermission(for: accessLevel, name: name)
+            PermissionWorkerDI.photoLibrary = PhotoLibraryPermission(for: accessLevel, name: name, retryWhenDeniedOnFirstTime: retry)
         } else if accessLevel != PermissionWorkerDI.photoLibrary.accessLevel {
-            PermissionWorkerDI.photoLibrary = PhotoLibraryPermission(for: accessLevel, name: name)
+            PermissionWorkerDI.photoLibrary = PhotoLibraryPermission(for: accessLevel, name: name, retryWhenDeniedOnFirstTime: retry)
         }
         return PermissionWorkerDI.photoLibrary
     }
@@ -123,11 +123,11 @@ extension PermissionWorker where Self == PhotoLibraryPermission {
 
 @available(iOS 14.0, *)
 extension PermissionWorker where Self == LocationPermission {
-    @MainActor @preconcurrency public static func location(for location: LocationPermissionType, name: String = "Location") -> LocationPermission {
+    @MainActor @preconcurrency public static func location(for location: LocationPermissionType, name: String = "Location", retryWhenDeniedOnFirstTime retry: Bool = true) -> LocationPermission {
         if PermissionWorkerDI.location == nil {
-            PermissionWorkerDI.location = LocationPermission(for: location, name: name)
+            PermissionWorkerDI.location = LocationPermission(for: location, name: name, retryWhenDeniedOnFirstTime: retry)
         } else if location != PermissionWorkerDI.location.location {
-            PermissionWorkerDI.location = LocationPermission(for: location, name: name)
+            PermissionWorkerDI.location = LocationPermission(for: location, name: name, retryWhenDeniedOnFirstTime: retry)
         }
         return PermissionWorkerDI.location
     }
@@ -135,16 +135,16 @@ extension PermissionWorker where Self == LocationPermission {
 
 @available(iOS 13.1, *)
 extension PermissionWorker where Self == BluetoothPermission {
-    @MainActor @preconcurrency public static func bluetooth(name: String = "Bluetooth") -> BluetoothPermission {
+    @MainActor @preconcurrency public static func bluetooth(name: String = "Bluetooth", retryWhenDeniedOnFirstTime retry: Bool = true) -> BluetoothPermission {
         if PermissionWorkerDI.bluetooth == nil {
-            PermissionWorkerDI.bluetooth = BluetoothPermission(name: name)
+            PermissionWorkerDI.bluetooth = BluetoothPermission(name: name, retryWhenDeniedOnFirstTime: retry)
         }
         return PermissionWorkerDI.bluetooth
     }
     
     @MainActor @preconcurrency public static var bluetooth: BluetoothPermission {
         if PermissionWorkerDI.bluetooth == nil {
-            PermissionWorkerDI.bluetooth = BluetoothPermission(name: "CarPlay")
+            PermissionWorkerDI.bluetooth = BluetoothPermission(name: "Bluetooth")
         }
         return PermissionWorkerDI.bluetooth
     }
@@ -152,11 +152,11 @@ extension PermissionWorker where Self == BluetoothPermission {
 
 @available(iOS 9.0, *)
 extension PermissionWorker where Self == ContactsPermission {
-    @MainActor @preconcurrency public static func contacts(for entityType: CNEntityType = .contacts, name: String = "Contacts") -> ContactsPermission {
+    @MainActor @preconcurrency public static func contacts(for entityType: CNEntityType = .contacts, name: String = "Contacts", retryWhenDeniedOnFirstTime retry: Bool = true) -> ContactsPermission {
         if PermissionWorkerDI.contacts == nil {
-            PermissionWorkerDI.contacts = ContactsPermission(for: entityType, name: name)
+            PermissionWorkerDI.contacts = ContactsPermission(for: entityType, name: name, retryWhenDeniedOnFirstTime: retry)
         } else if entityType != PermissionWorkerDI.contacts.entityType {
-            PermissionWorkerDI.contacts = ContactsPermission(for: entityType, name: name)
+            PermissionWorkerDI.contacts = ContactsPermission(for: entityType, name: name, retryWhenDeniedOnFirstTime: retry)
         }
         return PermissionWorkerDI.contacts
     }
@@ -168,9 +168,9 @@ extension PermissionWorker where Self == ContactsPermission {
 
 @available(iOS 6.0, *)
 extension PermissionWorker where Self == EventKitPermission {
-    @MainActor @preconcurrency public static func reminder(name: String = "Reminders") -> EventKitPermission {
+    @MainActor @preconcurrency public static func reminder(name: String = "Reminders", retryWhenDeniedOnFirstTime retry: Bool = true) -> EventKitPermission {
         if PermissionWorkerDI.reminder == nil {
-            PermissionWorkerDI.reminder = EventKitPermission(for: .reminder, name: name)
+            PermissionWorkerDI.reminder = EventKitPermission(for: .reminder, name: name, retryWhenDeniedOnFirstTime: retry)
         }
         return PermissionWorkerDI.reminder
     }
@@ -182,9 +182,9 @@ extension PermissionWorker where Self == EventKitPermission {
         return PermissionWorkerDI.reminder
     }
     
-    @MainActor @preconcurrency public static func calendar(name: String = "Calendar") -> EventKitPermission {
+    @MainActor @preconcurrency public static func calendar(name: String = "Calendar", retryWhenDeniedOnFirstTime retry: Bool = true) -> EventKitPermission {
         if PermissionWorkerDI.calendar == nil {
-            PermissionWorkerDI.calendar = EventKitPermission(for: .event, name: name)
+            PermissionWorkerDI.calendar = EventKitPermission(for: .event, name: name, retryWhenDeniedOnFirstTime: retry)
         }
         return PermissionWorkerDI.calendar
     }
@@ -199,11 +199,11 @@ extension PermissionWorker where Self == EventKitPermission {
 
 @available(iOS, introduced: 8.0)
 public extension PermissionWorker where Self == MotionPermission {
-    @MainActor @preconcurrency public static func motion(from: Date, to: Date, queue: OperationQueue = .current ?? .main, name: String = "Motion & Fitness", completion: ((_ activities: [CMMotionActivity]) -> Void)? = nil) -> MotionPermission {
+    @MainActor @preconcurrency public static func motion(from: Date, to: Date, queue: OperationQueue = .current ?? .main, name: String = "Motion & Fitness", retryWhenDeniedOnFirstTime retry: Bool = true, completion: ((_ activities: [CMMotionActivity]) -> Void)? = nil) -> MotionPermission {
         if PermissionWorkerDI.motion == nil {
-            PermissionWorkerDI.motion = MotionPermission(from: from, to: to, queue: queue, name: name, completion: completion)
+            PermissionWorkerDI.motion = MotionPermission(from: from, to: to, queue: queue, name: name, retryWhenDeniedOnFirstTime: retry, completion: completion)
         } else if from.timeIntervalSince1970 != PermissionWorkerDI.motion.from.timeIntervalSince1970 || to.timeIntervalSince1970 != PermissionWorkerDI.motion.to.timeIntervalSince1970 {
-            PermissionWorkerDI.motion = MotionPermission(from: from, to: to, queue: queue, name: name, completion: completion)
+            PermissionWorkerDI.motion = MotionPermission(from: from, to: to, queue: queue, name: name, retryWhenDeniedOnFirstTime: retry, completion: completion)
         }
         return PermissionWorkerDI.motion
     }
@@ -232,9 +232,9 @@ public extension PermissionWorker where Self == SpeechPermission {
 
 @available(iOS 9.3, *)
 extension PermissionWorker where Self == MediaLibraryPermission {
-    @MainActor @preconcurrency public static func mediaLibrary(name: String = "Media Library") -> MediaLibraryPermission {
+    @MainActor @preconcurrency public static func mediaLibrary(name: String = "Media Library", retryWhenDeniedOnFirstTime retry: Bool = true) -> MediaLibraryPermission {
         if PermissionWorkerDI.mediaLibrary == nil {
-            PermissionWorkerDI.mediaLibrary = MediaLibraryPermission(name: name)
+            PermissionWorkerDI.mediaLibrary = MediaLibraryPermission(name: name, retryWhenDeniedOnFirstTime: retry)
         }
         return PermissionWorkerDI.mediaLibrary
     }
@@ -278,9 +278,9 @@ extension PermissionWorker where Self == HomeKitPermission {
 
 @available(iOS 10.0, *)
 extension PermissionWorker where Self == SiriPermission {
-    @MainActor @preconcurrency public static func siri(name: String = "Siri") -> SiriPermission {
+    @MainActor @preconcurrency public static func siri(name: String = "Siri", retryWhenDeniedOnFirstTime retry: Bool = true) -> SiriPermission {
         if PermissionWorkerDI.siri == nil {
-            PermissionWorkerDI.siri = SiriPermission(name: name)
+            PermissionWorkerDI.siri = SiriPermission(name: name, retryWhenDeniedOnFirstTime: retry)
         }
         return PermissionWorkerDI.siri
     }
@@ -295,16 +295,16 @@ extension PermissionWorker where Self == SiriPermission {
 
 @available(iOS 10.0, *)
 extension PermissionWorker where Self == TrackingPermission {
-    @MainActor @preconcurrency public static func tracking(name: String = "Siri") -> TrackingPermission {
+    @MainActor @preconcurrency public static func tracking(name: String = "Tracking", retryWhenDeniedOnFirstTime retry: Bool = true) -> TrackingPermission {
         if PermissionWorkerDI.tracking == nil {
-            PermissionWorkerDI.tracking = TrackingPermission(name: name)
+            PermissionWorkerDI.tracking = TrackingPermission(name: name, retryWhenDeniedOnFirstTime: retry)
         }
         return PermissionWorkerDI.tracking
     }
     
     @MainActor @preconcurrency public static var tracking: TrackingPermission {
         if PermissionWorkerDI.tracking == nil {
-            PermissionWorkerDI.tracking = TrackingPermission(name: "Siri")
+            PermissionWorkerDI.tracking = TrackingPermission(name: "Tracking")
         }
         return PermissionWorkerDI.tracking
     }
@@ -312,11 +312,11 @@ extension PermissionWorker where Self == TrackingPermission {
 
 @available(iOS 8.0, *)
 extension PermissionWorker where Self == BiometricPermission {
-    @MainActor @preconcurrency public static func biometric(_ policy: LAPolicy = .deviceOwnerAuthenticationWithBiometrics, localizedReason: String, name: String = "Biometric") -> BiometricPermission {
+    @MainActor @preconcurrency public static func biometric(_ policy: LAPolicy = .deviceOwnerAuthenticationWithBiometrics, localizedReason: String, name: String = "Biometric", retryWhenDeniedOnFirstTime retry: Bool = true) -> BiometricPermission {
         if PermissionWorkerDI.biometric == nil {
-            PermissionWorkerDI.biometric = BiometricPermission(policy: policy, localizedReason: localizedReason, name: name)
+            PermissionWorkerDI.biometric = BiometricPermission(policy: policy, localizedReason: localizedReason, name: name, retryWhenDeniedOnFirstTime: retry)
         } else if policy != PermissionWorkerDI.biometric.policy || localizedReason != PermissionWorkerDI.biometric.localizedReason {
-            PermissionWorkerDI.biometric = BiometricPermission(policy: policy, localizedReason: localizedReason, name: name)
+            PermissionWorkerDI.biometric = BiometricPermission(policy: policy, localizedReason: localizedReason, name: name, retryWhenDeniedOnFirstTime: retry)
         }
         return PermissionWorkerDI.biometric
     }

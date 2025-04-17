@@ -1,7 +1,7 @@
 import HomeKit
 
 @available(iOS 8.0, *)
-public final class HomeKitPermission: NSObject, PermissionWorker, @preconcurrency HMHomeManagerDelegate {
+public final class HomeKitPermission: NSObject, PermissionWorker {
     private let name: String
     private var continuation: CheckedContinuation<AuthorizedPermission, Error>?
     private let queue: DispatchQueue
@@ -27,7 +27,9 @@ public final class HomeKitPermission: NSObject, PermissionWorker, @preconcurrenc
             }
         }
     }
+}
 
+extension HomeKitPermission: @preconcurrency HMHomeManagerDelegate {
     public func homeManagerDidUpdateHomes(_ manager: HMHomeManager) {
         continuation?.resume(returning: .fullPermission)
         continuation = nil

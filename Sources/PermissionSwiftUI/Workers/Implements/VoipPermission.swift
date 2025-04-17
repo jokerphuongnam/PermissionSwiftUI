@@ -20,7 +20,7 @@ public struct VoipPermission: PermissionWorker {
             if registry.desiredPushTypes == desiredPushTypes {
                 return .fullPermission
             } else {
-                throw PermissionError.denied(permissionName: name)
+                throw PermissionError.restricted(permissionName: name)
             }
         }
     }

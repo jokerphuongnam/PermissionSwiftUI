@@ -7,15 +7,17 @@ public enum LocationPermissionType {
 }
 
 @available(iOS 14.0, *)
-public final class LocationPermission: NSObject, PermissionWorker, @preconcurrency CLLocationManagerDelegate {
+public final class LocationPermission: NSObject, PermissionWorker {
     let location: LocationPermissionType
     private let name: String
     private let manager = CLLocationManager()
     private var sessionContinuation: CheckedContinuation<AuthorizedPermission, Error>?
+    private let retry: Bool
     
-    public init(for location: LocationPermissionType, name: String = "Location") {
+    public init(for location: LocationPermissionType, name: String = "Location", retryWhenDeniedOnFirstTime retry: Bool = true) {
         self.location = location
         self.name = name
+        self.retry = retry
         super.init()
         manager.delegate = self
     }
@@ -26,23 +28,11 @@ public final class LocationPermission: NSObject, PermissionWorker, @preconcurren
 
             switch status {
             case .notDetermined:
-                return try await withCheckedThrowingContinuation { [weak self] continuation in
-                    guard let self else {
-                        continuation.resume(throwing: PermissionError.unknown)
-                        return
-                    }
-                    self.sessionContinuation = continuation
-                    switch self.location {
-                    case .location:
-                        manager.requestLocation()
-                    case .locationWhenInUse:
-                        manager.requestWhenInUseAuthorization()
-                    case .locationAlways:
-                        manager.requestAlwaysAuthorization()
-                    }
-                }
-
+                return try await requestPermission()
             case .denied:
+                if retry {
+                    return try await requestPermission()
+                }
                 throw PermissionError.denied(permissionName: name)
             case .restricted:
                 throw PermissionError.restricted(permissionName: name)
@@ -56,6 +46,26 @@ public final class LocationPermission: NSObject, PermissionWorker, @preconcurren
         }
     }
     
+    private func requestPermission() async throws -> AuthorizedPermission {
+        return try await withCheckedThrowingContinuation { [weak self] continuation in
+            guard let self else {
+                continuation.resume(throwing: PermissionError.unknown)
+                return
+            }
+            self.sessionContinuation = continuation
+            switch self.location {
+            case .location:
+                manager.requestLocation()
+            case .locationWhenInUse:
+                manager.requestWhenInUseAuthorization()
+            case .locationAlways:
+                manager.requestAlwaysAuthorization()
+            }
+        }
+    }
+}
+
+extension LocationPermission: @preconcurrency CLLocationManagerDelegate {
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
     }

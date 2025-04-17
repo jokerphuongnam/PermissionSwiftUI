@@ -11,10 +11,10 @@ public struct NearbyPermission: PermissionWorker {
     public var authorize: AuthorizedPermission {
         get async throws {
             return try await withCheckedThrowingContinuation { continuation in
-                if !NISession.isSupported {
-                    continuation.resume(throwing: PermissionError.restricted(permissionName: name))
-                } else {
+                if NISession.isSupported {
                     continuation.resume(returning: .fullPermission)
+                } else {
+                    continuation.resume(throwing: PermissionError.restricted(permissionName: name))
                 }
             }
         }
