@@ -11,7 +11,7 @@ public struct PhotoLibraryPermission: PermissionWorker {
         self.name = name
         self.retry = retry
     }
-
+    
     public var authorize: AuthorizedPermission {
         get async throws {
             try await requestPermission(status: PHPhotoLibrary.authorizationStatus(), isFirstTime: true)
@@ -21,13 +21,29 @@ public struct PhotoLibraryPermission: PermissionWorker {
     private func requestPermission(status: PHAuthorizationStatus, isFirstTime: Bool) async throws -> AuthorizedPermission {
         switch status {
         case .notDetermined:
-            let newStatus = await PHPhotoLibrary.requestAuthorization(for: accessLevel)
-            return try await requestPermission(status: newStatus, isFirstTime: false)
+            return try await withCheckedThrowingContinuation { continuation in
+                PHPhotoLibrary.requestAuthorization(for: accessLevel) { status in
+                    switch status {
+                    case .authorized:
+                        continuation.resume(returning: .fullPermission)
+                    case .limited:
+                        continuation.resume(returning: .limited)
+                    case .denied:
+                        continuation.resume(throwing: PermissionError.denied(permissionName: name))
+                    case .restricted:
+                        continuation.resume(throwing: PermissionError.restricted(permissionName: name))
+                    case .notDetermined:
+                        break
+                    @unknown default:
+                        break
+                    }
+                }
+            }
         case .restricted:
             throw PermissionError.restricted(permissionName: name)
         case .denied:
             if isFirstTime && retry {
-                return try await requestPermission(status: status, isFirstTime: false)
+                return try await requestPermission(status: .notDetermined, isFirstTime: false)
             }
             throw PermissionError.denied(permissionName: name)
         case .authorized:
