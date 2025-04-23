@@ -12,5 +12,5 @@ public enum Presented {
     @available(iOS 13.0, macOS 10.15, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    case popover(attachmentAnchor: PopoverAttachmentAnchor = .rect(.bounds), arrowEdge: Edge? = nil)
+    case popover(attachmentAnchor: PopoverAttachmentAnchor = .rect(.bounds), arrowEdge: Edge = .bottom)
 }
